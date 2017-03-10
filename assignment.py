@@ -96,15 +96,26 @@ def hopcount(start,end):
         count = count + 1
     return count
 
-#hop_matrix = np.zeros([SIZE,SIZE])
-#for i in list(range(SIZE)):
-#    for j in list(range(i,SIZE)):
-#        hop_matrix[i,j] = hopcount(i,j)
-#hop_matrix = hop_matrix + hop_matrix.T
-#HOP = hop_matrix
+
+hop_matrix = np.zeros([SIZE,SIZE])
+for i in list(range(SIZE)):
+    for j in list(range(i,SIZE)):
+        hop_matrix[i,j] = hopcount(i,j)
+hop_matrix = hop_matrix + hop_matrix.T
+HOP = hop_matrix
 
 ave_hop = sum(sum(HOP))/(SIZE*(SIZE-1))
 max_hop = np.max(np.max(HOP))
 print("average hop:",ave_hop)
 print("max hop:",max_hop)
-#%%
+#%% 6. Yes because average hop is 1.7 < log(SIZE)
+#%% 7. 
+eig_m = np.linalg.eigvals(M)
+print("1st eigenvalue", eig[0])
+
+#%% 8.
+d = np.diag(degree_array)
+laplace_matrix = d - M
+eig_l = np.linalg.eigvals(laplace_matrix)
+eig_l.sort()
+print("second small eig for laplace:",eig_l[1])
