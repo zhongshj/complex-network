@@ -103,7 +103,6 @@ def hopcount(start,end):
 #hop_matrix = hop_matrix + hop_matrix.T
 #HOP = hop_matrix
 
-#%%
 ave_hop = sum(sum(HOP))/(SIZE*(SIZE-1))
 max_hop = np.max(np.max(HOP))
 print("average hop:",ave_hop)
