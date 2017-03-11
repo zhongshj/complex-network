@@ -22,10 +22,10 @@ node1 = np.array(dataset['node1'])
 node2 = np.array(dataset['node2'])
 time = np.array(dataset['time'])
 
-#%% 1.
 size = np.max([np.max(node1),np.max(node2)])
 print("number of nodes: ",size) #number of nodes
 
+#create link matrix
 mat = np.zeros([size,size])
 for i in list(range(np.size(node1))):
     mat[node1[i]-1,node2[i]-1] = 1
@@ -33,6 +33,10 @@ for i in list(range(np.size(node1))):
 #0~241 in the matrix, 
 M = mat
 SIZE = np.size(M[0])
+
+
+
+#%% 1.
 
 link_num = sum(sum(M))/2
 print("number of links: ",link_num) #number of links
@@ -119,3 +123,25 @@ laplace_matrix = d - M
 eig_l = np.linalg.eigvals(laplace_matrix)
 eig_l.sort()
 print("second small eig for laplace:",eig_l[1])
+
+#%% 9.
+DF = pd.DataFrame({'n1':node1,'n2':node2,'t':time})
+#a = DF[DF.t==1].n1
+#a = np.array(a)
+
+def one_step_infect(old_set,timestamp):
+    new_set = old_set
+    n1 = np.array(DF[DF.t==timestamp].n1)
+    n2 = np.array(DF[DF.t==timestamp].n2)
+    for i in list(range(np.size(n1))):
+        if n1[i] in old_set:
+            new_set.add(n2[i])
+        if n2[i] in old_set:
+            new_set.add(n1[i])
+    return new_set
+        
+def infection(seed,time):
+    infect_set = set([seed])
+    for i in list(range(time)):
+        infect_set = one_step_infect(infect_set,i+1)
+    return infect_set
