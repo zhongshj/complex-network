@@ -9,6 +9,7 @@ Created on Wed Mar  8 17:13:19 2017
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import math
 
 def degree(mat,i):
     return sum(mat[i])
@@ -98,10 +99,11 @@ def L(i):
                 count = count + 1
     return count
     
-C = 0
+clu_array = np.zeros(SIZE)
 for i in list(range(SIZE)):
-    C = C + 2 * L(i)/(degree_array[i]*(degree_array[i]-1))
-C = C / SIZE
+    clu_array[i] = 2 * L(i)/(degree_array[i]*(degree_array[i]-1))
+
+C = sum(clu_array) / SIZE
 
 print("clustering coefficient: ", C)
 
@@ -145,7 +147,7 @@ eig_l = np.linalg.eigvals(laplace_matrix)
 eig_l.sort()
 print("second small eig for laplace:",eig_l[1])
 
-#%% 9.
+#%% 9-15
 DF = pd.DataFrame({'n1':node1,'n2':node2,'t':time})
 #a = DF[DF.t==1].n1
 #a = np.array(a)
@@ -167,14 +169,78 @@ def infection(seed,time):
         infect_set = one_step_infect(infect_set,i+1)
     return infect_set
     
-sum_infect = 0
-plot_array = np.zeros([SIZE,5846])
-for j in list(range(SIZE)):
-    print(j)
-    infect_set = set([j+1])
-    for i in list(range(5846)):
-        infect_set = one_step_infect(infect_set,i+1)
-        set_size = len(infect_set)
-        plot_array[j,i] = set_size
-        #print("seed:",j+1,"round:",i+1,"size:",set_size)
+#%% 9.
+##plot_array = np.zeros([SIZE,5846])
+#for j in list(range(229,SIZE)):
+#    #print(j)
+#    infect_set = set([j+1])
+#    for i in list(range(5846)):
+#        infect_set = one_step_infect(infect_set,i+1)
+#        set_size = len(infect_set)
+#        plot_array[j,i] = set_size
+#        print("seed:",j+1,"round:",i+1,"size:",set_size)
+#np.savetxt('new.csv', plot_array, delimiter = ',')
+
+ave_infected = sum(P)/SIZE
+var_infected = np.zeros(5846)
+for i in list(range(5846)):
+    var_infected[i] = np.std(P[:,i])
+plt.plot(ave_infected)
+plt.plot(var_infected)
+#%% 10.
+threshold = SIZE * 0.8
+reach_80 = np.zeros(SIZE)
+for i in list(range(SIZE)):    
+    for j in list(range(5846)):
+        if P[i,j] >= threshold:
+            reach_80[i] = j+1
+            break
+rank_R = np.argsort(reach_80)
+
+#%% 11.
+rank_D = np.argsort(degree_array)
+rank_C = np.argsort(clu_array)
+
+step_array = np.array([0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5])
+
+step_array = step_array * SIZE
+
+rate_D = []
+rate_C = []
+for i in list(range(np.size(step_array))):
+    sub_c = []
+    sub_d = []
+    sub_r = []
+    for j in list(range(math.ceil(step_array[i]))):
+        sub_c.append(rank_C[j])
+        sub_d.append(rank_D[j])
+        sub_r.append(rank_R[j])
+    rate_C.append(len(set(sub_c)&set(sub_r))/len(sub_r))
+    rate_D.append(len(set(sub_d)&set(sub_r))/len(sub_r))
     
+plt.plot(step_array/SIZE,rate_C)  
+plt.plot(step_array/SIZE,rate_D)  
+    
+#%% 12.
+#1 count activate number for each node
+mat = np.zeros([size,size])
+for i in list(range(np.size(node1))):
+    mat[node1[i]-1,node2[i]-1] = mat[node1[i]-1,node2[i]-1] + 1
+    mat[node2[i]-1,node1[i]-1] = mat[node2[i]-1,node1[i]-1] + 1
+T = mat
+#%%
+freq_array = sum(T)
+rank_F = np.argsort(freq_array)
+
+rate_F = []
+for i in list(range(np.size(step_array))):
+    sub_f = []
+    sub_r = []
+    for j in list(range(math.ceil(step_array[i]))):
+        sub_f.append(rank_F[j])
+        sub_r.append(rank_R[j])
+    rate_F.append(len(set(sub_f)&set(sub_r))/len(sub_r))
+    
+    
+plt.plot(step_array/SIZE,rate_F)  
+
