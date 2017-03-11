@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import math
+import random
 
 def degree(mat,i):
     return sum(mat[i])
@@ -34,6 +35,31 @@ for i in list(range(np.size(node1))):
 #0~241 in the matrix, 
 M = mat
 SIZE = np.size(M[0])
+
+def degree_correlation(mat,degree_array):
+    sum_d_squr  = 0
+    link_num = 8317
+    for i in range(size):
+        sum_d_squr = sum_d_squr + degree_array[i]*degree_array[i]
+    sum_d_squr 
+    u_Di = sum_d_squr / (2*link_num) 
+    u_Di_squr = u_Di * u_Di
+    
+    
+    sum_d_trpl = 0
+    for i in range(size):
+        sum_d_trpl = sum_d_trpl + degree_array[i]*degree_array[i]*degree_array[i]
+    E_Di_squr = sum_d_trpl/(2*link_num)
+    
+        
+    Di_Dj = np.dot(np.dot(degree_array,mat),degree_array)
+    E_Di_Dj = Di_Dj/(2*link_num)
+    
+    
+    pD = (E_Di_Dj - u_Di_squr )/(E_Di_squr-u_Di_squr)
+    return pD
+
+
 
 
 
@@ -250,4 +276,41 @@ plt.plot(step_array/SIZE,rate_F)
 plt.plot(step_array/SIZE,rate_H)
     
 #%% 12.
+#Randomized new matrix
+def new_g():
+    #get minimal pairs of edges
+    l1 = []
+    l2 = []
+    for i in list(range(SIZE)):
+        for j in list(range(i,SIZE)):
+            if M[i,j] == 1:
+                l1.append(i)
+                l2.append(j)
+    #return l1,l2
+    #shuffle and make sure no self-loop
+    b = True
+    while b:
+        #random.shuffle(l1)
+        random.shuffle(l2)
+        b = False
+        print("...")
+        for i in list(range(len(l1))):
+            if l1[i]==l2[i]:
+                b = True
+                break
+    
+    mat = np.zeros([SIZE,SIZE])
+    for i in list(range(len(l1))):
+        mat[l1[i],l2[i]] = 1
+        mat[l2[i],l1[i]] = 1
+        
+    degree_array = sum(mat)
+    dc = degree_correlation(mat,degree_array)
+    
+    return mat,dc,degree_array
+    #randomize
+    
+            
+
+#remove duplicate links
 
