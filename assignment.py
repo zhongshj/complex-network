@@ -145,3 +145,15 @@ def infection(seed,time):
     for i in list(range(time)):
         infect_set = one_step_infect(infect_set,i+1)
     return infect_set
+    
+sum_infect = 0
+plot_array = np.zeros([SIZE,5846])
+for j in list(range(SIZE)):
+    print(j)
+    infect_set = set([j+1])
+    for i in list(range(5846)):
+        infect_set = one_step_infect(infect_set,i+1)
+        set_size = len(infect_set)
+        plot_array[j,i] = set_size
+        #print("seed:",j+1,"round:",i+1,"size:",set_size)
+    
