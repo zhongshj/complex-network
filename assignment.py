@@ -170,6 +170,9 @@ def infection(seed,time):
     return infect_set
     
 #%% 9.
+
+#this part runs about 1 hour and get the num infected by timestamp for each seed
+
 ##plot_array = np.zeros([SIZE,5846])
 #for j in list(range(229,SIZE)):
 #    #print(j)
@@ -185,8 +188,10 @@ ave_infected = sum(P)/SIZE
 var_infected = np.zeros(5846)
 for i in list(range(5846)):
     var_infected[i] = np.std(P[:,i])
+    
 plt.plot(ave_infected)
 plt.plot(var_infected)
+
 #%% 10.
 threshold = SIZE * 0.8
 reach_80 = np.zeros(SIZE)
@@ -197,50 +202,52 @@ for i in list(range(SIZE)):
             break
 rank_R = np.argsort(reach_80)
 
-#%% 11.
-rank_D = np.argsort(degree_array)
-rank_C = np.argsort(clu_array)
+#%% 11,12
+
+#get the rank of several features
+rank_D = np.argsort(degree_array)   #degree
+rank_C = np.argsort(clu_array)  #cluster coefficient
+rank_H = np.argsort(sum(hop_matrix)/(SIZE-1))   #mean hopcount
+
+#1 count activate number for each node
+#mat = np.zeros([size,size])
+#for i in list(range(np.size(node1))):
+#    mat[node1[i]-1,node2[i]-1] = mat[node1[i]-1,node2[i]-1] + 1
+#    mat[node2[i]-1,node1[i]-1] = mat[node2[i]-1,node1[i]-1] + 1
+#T = mat
+
+freq_array = sum(T)
+rank_F = np.argsort(freq_array) #activate frequency through time
 
 step_array = np.array([0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5])
-
 step_array = step_array * SIZE
 
 rate_D = []
 rate_C = []
+rate_F = []
+rate_H = []
 for i in list(range(np.size(step_array))):
     sub_c = []
     sub_d = []
+    sub_f = []
+    sub_h = []
     sub_r = []
     for j in list(range(math.ceil(step_array[i]))):
         sub_c.append(rank_C[j])
         sub_d.append(rank_D[j])
         sub_r.append(rank_R[j])
+        sub_f.append(rank_F[j])
+        sub_h.append(rank_H[j])
     rate_C.append(len(set(sub_c)&set(sub_r))/len(sub_r))
     rate_D.append(len(set(sub_d)&set(sub_r))/len(sub_r))
+    rate_F.append(len(set(sub_f)&set(sub_r))/len(sub_r))
+    rate_H.append(len(set(sub_h)&set(sub_r))/len(sub_r))
+    
     
 plt.plot(step_array/SIZE,rate_C)  
 plt.plot(step_array/SIZE,rate_D)  
+plt.plot(step_array/SIZE,rate_F)  
+plt.plot(step_array/SIZE,rate_H)
     
 #%% 12.
-#1 count activate number for each node
-mat = np.zeros([size,size])
-for i in list(range(np.size(node1))):
-    mat[node1[i]-1,node2[i]-1] = mat[node1[i]-1,node2[i]-1] + 1
-    mat[node2[i]-1,node1[i]-1] = mat[node2[i]-1,node1[i]-1] + 1
-T = mat
-#%%
-freq_array = sum(T)
-rank_F = np.argsort(freq_array)
-
-rate_F = []
-for i in list(range(np.size(step_array))):
-    sub_f = []
-    sub_r = []
-    for j in list(range(math.ceil(step_array[i]))):
-        sub_f.append(rank_F[j])
-        sub_r.append(rank_R[j])
-    rate_F.append(len(set(sub_f)&set(sub_r))/len(sub_r))
-    
-    
-plt.plot(step_array/SIZE,rate_F)  
 
