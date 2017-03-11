@@ -56,7 +56,28 @@ plt.hist(degree_array,bins=20)  #degree distribution
 #I think ER random graph because the distribution is like poisson
 
 #%% 3.
+sum_d_squr  = 0
+for i in range(size):
+    sum_d_squr = sum_d_squr + degree_array[i]*degree_array[i]
+sum_d_squr 
+u_Di = sum_d_squr / (2*link_num) 
+u_Di_squr = u_Di * u_Di
 
+
+sum_d_trpl = 0
+for i in range(size):
+    sum_d_trpl = sum_d_trpl + degree_array[i]*degree_array[i]*degree_array[i]
+E_Di_squr = sum_d_trpl/(2*link_num)
+
+    
+Di_Dj = np.dot(np.dot(degree_array,M),degree_array)
+E_Di_Dj = Di_Dj/(2*link_num)
+
+
+pD = (E_Di_Dj - u_Di_squr )/(E_Di_squr-u_Di_squr)
+pD
+
+#%% assortativity is 0.11827144611912918 >0 , physical meaning is 
 #%% 4. 
 
 #this function returns a list of all neighbours of given node
