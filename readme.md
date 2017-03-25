@@ -1,18 +1,34 @@
-1. number of nodes:  242
+## general
 
-number of links:  8317.0
-link density: 0.285209697884
-average degree: 68.7355371901
-degree variance: 706.01270405
+1. general frequency by time
+2. active user number(by time)(发过就算)
+
+### edge
+
+1. reply rate
+2. reciprocate(website usability)
+
+### vertice
+
+1. popular user
+2. high quality user
 
 
 
-2. ​
-3. pD = 0.11827144611912918
-4. clustering coefficient:  0.525541541062
-5. In average hop: 1.73245087617
-   max hop: 3.0
-6. yes because 1.7 < log(SIZE) (不太确定)
-7. 1st eigenvalue 80.2475468894
-8. second small eig for laplace: 17.0354001431
-9. 选另外两个feature， Frequency是整个活动中节点被影响的次数，Average Hopcount是点与其他所有点的平均hopcount
+### operation situation
+
+1. general frequency by time
+
+2. active user number(by time)(发过就算)
+
+3. reciprocate(website usability)
+
+   ​
+
+   ### Quality
+
+
+1. reciprocate(histogram)
+2. reply rate
+3. popular user
+4. high quality user
