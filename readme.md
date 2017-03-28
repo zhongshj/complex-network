@@ -1,3 +1,4 @@
+http://snap.stanford.edu/data/CollegeMsg.html
 
 ### General
 
