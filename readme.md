@@ -35,3 +35,13 @@ Model: SS （如果不连续的话会有问题）或者SR，SI
 
 1. immunization
 2. link weight -> 计算infection rate
+
+
+
+### 4.5
+
+数据整理成按days计算
+
+4月15日 7.56 ～ 10月26日 0.52
+nodes: 1899
+active: 1893

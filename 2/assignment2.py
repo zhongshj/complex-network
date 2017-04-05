@@ -38,21 +38,61 @@ timestamp = data.T[2]
 
 #%% convert timestamp to month, day, weekday, hour, minute
 
-time_formulate = np.zeros([np.size(timestamp),5])
+time_formulate = np.zeros([np.size(timestamp),6])
 for i in range(np.size(timestamp)):
     time_formulate[i,0] = datetime.fromtimestamp(timestamp[i]-3600*7,pytz.timezone('UTC')).month
     time_formulate[i,1] = datetime.fromtimestamp(timestamp[i]-3600*7,pytz.timezone('UTC')).day
     time_formulate[i,2] = datetime.fromtimestamp(timestamp[i]-3600*7,pytz.timezone('UTC')).weekday()+1
     time_formulate[i,3] = datetime.fromtimestamp(timestamp[i]-3600*7,pytz.timezone('UTC')).hour
     time_formulate[i,4] = datetime.fromtimestamp(timestamp[i]-3600*7,pytz.timezone('UTC')).minute    
-#%% create matrix
+    if time_formulate[i,0] >= 4:
+        time_formulate[i,5] = time_formulate[i,1]
+    if time_formulate[i,0] >= 5:
+        time_formulate[i,5] = time_formulate[i,5] + 30
+    if time_formulate[i,0] >= 6:
+        time_formulate[i,5] = time_formulate[i,5] + 31
+    if time_formulate[i,0] >= 7:
+        time_formulate[i,5] = time_formulate[i,5] + 30
+    if time_formulate[i,0] >= 8:
+        time_formulate[i,5] = time_formulate[i,5] + 31
+    if time_formulate[i,0] >= 9:
+        time_formulate[i,5] = time_formulate[i,5] + 31
+    if time_formulate[i,0] >= 10:
+        time_formulate[i,5] = time_formulate[i,5] + 30
+time_formulate[:,5] = time_formulate[:,5] - min(time_formulate[:,5])
+days = time_formulate[:,5]
+    #%% create matrix
 size = np.max([np.max(sender),np.max(receiver)])
 print("number of nodes: ",size) #number of nodes
 
-#create link matrix
+#create link matrix(obly upper half)
 m = np.zeros([size,size])
-m_t = np.zeros([size,size])
 for i in range(np.size(sender)):
     m[sender[i]-1,receiver[i]-1] = m[sender[i]-1,receiver[i]-1] + 1
-
     
+#%%
+
+#sender
+sender_array = sum(m.T)
+
+#receiver
+receiver_array = sum(m)
+
+#%% communication
+comm = np.zeros([size,size])
+for i in range(size):
+    for j in range(size):
+        comm[i,j] = min(m[i,j],m.T[i,j])
+        
+#%% connectivity
+
+def connectivity(m, l):
+    l_2 = l.copy()
+    for i in l:
+        for j in range(size):
+            if m[i,j] != 0 or m[j,i] != 0:
+                l_2.add(j)
+                print(i,j)
+    print(len(l_2))
+    return l_2
+
