@@ -35,6 +35,7 @@ data = np.array(data)
 sender = data.T[0]
 receiver = data.T[1]
 timestamp = data.T[2]
+num = np.size(timestamp)
 
 #%% convert timestamp to month, day, weekday, hour, minute
 
@@ -95,4 +96,31 @@ def connectivity(m, l):
                 print(i,j)
     print(len(l_2))
     return l_2
+#%%
+l = connectivity(m,l)
 
+#%%
+reliable_7 = np.zeros(num)
+lifespan = 1
+
+for i in range(num):
+    print("check:",i)
+    send = sender[i]
+    rec = receiver[i]
+    day = days[i]
+    j = i
+    while days[j] <= day + lifespan:
+        if rec == sender[j] and send == receiver[j]:
+            reliable_1[i] = 1
+            print("found")
+            break
+        else:
+            j = j + 1
+            if j >= num:
+                break
+        
+        
+    
+    
+    
+    
