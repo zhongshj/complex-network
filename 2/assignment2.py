@@ -79,12 +79,12 @@ sender_array = sum(m.T)
 #receiver
 receiver_array = sum(m)
 
-#%% communication
-comm = np.zeros([size,size])
-for i in range(size):
-    for j in range(size):
-        comm[i,j] = min(m[i,j],m.T[i,j])
-        
+##%% communication
+#comm = np.zeros([size,size])
+#for i in range(size):
+#    for j in range(size):
+#        comm[i,j] = min(m[i,j],m.T[i,j])
+#        
 #%% connectivity
 
 def connectivity(m, l):
@@ -100,8 +100,9 @@ def connectivity(m, l):
 l = connectivity(m,l)
 
 #%%
-reliable_7 = np.zeros(num)
+reliable_1 = np.zeros(num)
 lifespan = 1
+
 
 for i in range(num):
     print("check:",i)
@@ -118,9 +119,45 @@ for i in range(num):
             j = j + 1
             if j >= num:
                 break
-        
-        
-    
-    
+            
+#%% reciprocate
+day = 195
+p0 = np.zeros(day)
+p1 = np.zeros(day)
+p7 = np.zeros(day)
+
+for i in range(num):
+    p0[days[i]] = p0[days[i]] + 1
+    if reliable_1[i] == 1:
+        p1[days[i]] = p1[days[i]] + 1
+    if reliable_7[i] == 1:
+        p7[days[i]] = p7[days[i]] + 1
+          
+#%% plot reciprocate
+plt.figure(figsize=(8,4)) 
+line_0,=plt.plot(p0,'b-',label="Total")  
+line_7,=plt.plot(p7,'r-',label="Replied in 7 days")  
+line_1,=plt.plot(p1,'g-',label="Replied in 1 day")  
+
+plt.legend(handles=[line_0, line_7, line_1],loc="upper right")
+plt.xlabel("day")
+plt.ylabel("mail number")
+plt.title("Mailing frequency")
+plt.savefig("reciprocate.eps")
+
+#%%
+start_day = np.ones(day) * 200
+end_day = np.zeros(day)
+
+for i in range(num):
+    start_day[days[i]] = min(start_day[days[i]],sender[i])
+    end_day[days[i]] = max(end_day[days[i]],sender[i])
+   
+#%%
+plt.scatter(days,sender,s=0.2,marker='.')
+plt.xlabel("day")
+plt.ylabel("user")
+plt.title("Activity")
+plt.savefig("activity.eps")
     
     
