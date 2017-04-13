@@ -36,7 +36,7 @@ sender = data.T[0]
 receiver = data.T[1]
 timestamp = data.T[2]
 num = np.size(timestamp)
-
+day = 195
 #%% convert timestamp to month, day, weekday, hour, minute
 
 time_formulate = np.zeros([np.size(timestamp),6])
@@ -121,7 +121,6 @@ for i in range(num):
                 break
             
 #%% reciprocate
-day = 195
 p0 = np.zeros(day)
 p1 = np.zeros(day)
 p7 = np.zeros(day)
@@ -143,7 +142,7 @@ plt.legend(handles=[line_0, line_7, line_1],loc="upper right")
 plt.xlabel("day")
 plt.ylabel("mail number")
 plt.title("Mailing frequency")
-plt.savefig("reciprocate.eps")
+#plt.savefig("reciprocate.eps")
 
 #%%
 start_day = np.ones(day) * 200
@@ -158,6 +157,131 @@ plt.scatter(days,sender,s=0.2,marker='.')
 plt.xlabel("day")
 plt.ylabel("user")
 plt.title("Activity")
-plt.savefig("activity.eps")
+#plt.savefig("activity.eps")
     
+#%% top 10 user by total mailing freq
+send_sort = np.argsort(sender_array)
+receive_sort = np.argsort(receiver_array)
+send_top20_mailfreq = np.zeros(50)
+receive_top20_mailfreq = np.zeros(50)
+for i in range(50):
+    receive_top20_mailfreq[i] = receive_sort[-i-1]
+    send_top20_mailfreq[i] = send_sort[-i-1]
     
+#%% degree
+m_1 = np.zeros([size,size])
+for i in range(size):
+    for j in range(size):
+        if m[i,j] != 0:
+            m_1[i,j] = 1
+
+sender_degree = sum(m_1.T)
+receiver_degree = sum(m_1)
+
+send_sort = np.argsort(sender_degree)
+receive_sort = np.argsort(receiver_degree)
+send_top20_degree = np.zeros(50)
+receive_top20_degree = np.zeros(50)
+for i in range(50):
+    receive_top20_degree[i] = receive_sort[-i-1]
+    send_top20_degree[i] = send_sort[-i-1]
+
+#%%
+def send_activity(user):
+    count = 0
+    bytime = np.zeros(195)
+    for i in range(num):
+        if sender[i] == user+1:
+            bytime[days[i]] = bytime[days[i]] + 1
+    return bytime
+
+def receive_activity(user):
+    count = 0
+    bytime = np.zeros(195)
+    for i in range(num):
+        if receiver[i] == user+1:
+            bytime[days[i]] = bytime[days[i]] + 1
+    return bytime
+#%% top 10 user by active days
+send_active_day = np.zeros([size,day])
+receive_active_day = np.zeros([size,day])
+for i in range(num):
+    send_active_day[sender[i]-1,days[i]] = 1
+    receive_active_day[receiver[i]-1,days[i]] = 1
+                      
+send_active_day = sum(send_active_day.T)
+receive_active_day = sum(receive_active_day.T)
+
+send_sort = np.argsort(send_active_day)
+receive_sort = np.argsort(receive_active_day)
+send_top20_active = np.zeros(20)
+receive_top20_active = np.zeros(20)
+for i in range(20):
+    receive_top20_active[i] = receive_sort[-i-1]
+    send_top20_active[i] = send_sort[-i-1]
+#%%
+plt.scatter(np.arange(0,195),send_activity(send_top10[9]))
+
+#%% temporal model
+dic = {}
+df = pd.DataFrame({'send':sender,'receive':receiver,'day':days})
+
+for i in range(num):
+    dic[i] = np.array([np.array(df[df['day']==i].send),np.array(df[df['day']==i].receive)]).T
+
+#%%
+
+def one_step_infect(old_set,day,dic,imu_set):
+    new_set = old_set
+    a = dic[day]
+    for i in range(np.size(a,0)):
+        if a[i,0] in old_set and a[i,0] not in imu_set:
+            new_set.add(a[i,1])
+    return new_set
+
+def infection(seed,dic,imu_set):
+    infect_set = set([seed])
+    li = []
+    for i in range(195):
+        infect_set = one_step_infect(infect_set,i,dic,imu_set)
+        li.append(len(infect_set))
+    return li
+
+#%% cal line for all seeds
+spread_early = np.zeros([size, day])
+imu_set = set(np.arange(50))
+for i in range(size):
+    spread_early[i] = np.array(infection(i,dic,imu_set))
+    print("seed:",i)
+
+#%%
+for i in spread:
+    plt.plot(i)
+plt.xlabel("day")
+plt.ylabel("infected num")
+plt.title("Infection")
+#plt.savefig("infect.eps")
+#plt.savefig("infect.jpg")
+
+#%%
+line_o,=plt.plot(sum(spread)/1899,'b-',label="No immutation")
+line_early,=plt.plot(sum(spread_early)/1899,'r-',label="50 early user")
+line_sdeg,=plt.plot(sum(spread_s_degree)/1899,'g-',label="50 large out degree")
+line_ract,=plt.plot(sum(spread_r_active)/1899,'y-',label="50 large receive activity")
+plt.legend(handles=[line_o, line_early, line_sdeg, line_ract],loc="bottom right")
+plt.xlabel("day")
+plt.ylabel("average infect")
+plt.title("Infection by different immutation")
+plt.savefig("immutation.eps")
+plt.savefig("immutation.jpg")
+
+#%%
+index = np.array([10,20,50,100,200,400,600,800,1000,1200,1500,1800])
+spread_early = np.zeros([np.size(index),day])
+for j in range(np.size(index)):
+    spread_early_map = np.zeros([size, day])
+    imu_set = set(np.arange(index[j]))
+    for i in range(size):
+        spread_early_map[i] = np.array(infection(i,dic,imu_set))
+        print("seed:",i)
+    spread_early[j] = sum(spread_early_map)/1899
