@@ -107,125 +107,179 @@ def infection(seed,dic,start_day,imu_set):
         infect_set = one_step_infect(infect_set,i,dic,imu_set)
         li.append(len(infect_set))
     return li
-
-#%% select start_day
-start_day = 50
-imu_num = 100
-# get available user set
-user_set = set()
-for i in range(start_day):
-    for j in dic[i]:
-        user_set.add(j[0])
-        user_set.add(j[1])
-
-user_num = len(user_set)
-user_set = list(user_set)
-print("start day:", start_day, "user num:", user_num)
-
-#%% empty set and early register set
-imu_empty = set()
-imu_early = set(np.arange(imu_num))
-
-#%% get 50 frequent user set
-send_num = np.zeros(user_num)
-receive_num = np.zeros(user_num)
-
-for i in range(start_day):
-    for j in dic[i]:
-        send_num[j[0]-1] = send_num[j[0]-1] + 1
-        receive_num[j[1]-1] = receive_num[j[1]-1] + 1
-
-send_num_sort = np.argsort(send_num)
-receive_num_sort = np.argsort(receive_num)
-send_num_top = np.zeros(imu_num)
-receive_num_top = np.zeros(imu_num)
-for i in range(imu_num):
-    receive_num_top[i] = receive_num_sort[-i-1]
-    send_num_top[i] = send_num_sort[-i-1]  
-                      
-imu_freq_r = set(receive_num_top)
-imu_freq_s = set(send_num_top)
-
-#%% get 50 large degree user
-m_1 = np.zeros([user_num,user_num])
-for i in range(start_day):
-    for j in dic[i]:
-        m_1[j[0]-1,j[1]-1] = 1
-           
-send_degree = sum(m_1.T)
-receive_degree = sum(m_1)
-
-send_degree_sort = np.argsort(send_degree)
-receive_degree_sort = np.argsort(receive_degree)
-send_degree_top = np.zeros(imu_num)
-receive_degree_top = np.zeros(imu_num)
-for i in range(imu_num):
-    receive_degree_top[i] = receive_degree_sort[-i-1]
-    send_degree_top[i] = send_degree_sort[-i-1]  
-                      
-imu_degree_r = set(receive_degree_top)
-imu_degree_s = set(send_degree_top)
-
 #%%
-send_active = np.zeros([user_num,start_day])
-receive_active = np.zeros([user_num,start_day])
-for i in range(start_day):
-    for j in dic[i]:
-        send_active[j[0]-1,i] = 1
-        receive_active[j[1]-1,i] = 1
-                      
-send_active = sum(send_active.T)
-receive_active = sum(receive_active.T)
 
-send_active_sort = np.argsort(send_active)
-receive_active_sort = np.argsort(receive_active)
-send_active_top = np.zeros(imu_num)
-receive_active_top = np.zeros(imu_num)
-for i in range(imu_num):
-    receive_active_top[i] = receive_active_sort[-i-1]
-    send_active_top[i] = send_active_sort[-i-1]
+empty_t = []
+early_t = []
+ra_t = []
+sa_t = []
+rd_t = []
+sd_t = []
+rf_t = []
+sf_t = []
+
+time_index = np.arange(10,200,10)
+
+
+for start_day in time_index:
+
+    # select start_day
     
-imu_active_r = set(receive_active_top)
-imu_active_s = set(send_active_top)
+    imu_num = 100
+    # get available user set
+    user_set = set()
+    for i in range(start_day):
+        for j in dic[i]:
+            user_set.add(j[0])
+            user_set.add(j[1])
+    
+    user_num = len(user_set)
+    user_set = list(user_set)
+    print("start day:", start_day, "user num:", user_num)
+    
+    # empty set and early register set
+    imu_empty = set()
+    imu_early = set(np.arange(imu_num))
+    
+    # get 50 frequent user set
+    send_num = np.zeros(user_num)
+    receive_num = np.zeros(user_num)
+    
+    for i in range(start_day):
+        for j in dic[i]:
+            send_num[j[0]-1] = send_num[j[0]-1] + 1
+            receive_num[j[1]-1] = receive_num[j[1]-1] + 1
+    
+    send_num_sort = np.argsort(send_num)
+    receive_num_sort = np.argsort(receive_num)
+    send_num_top = np.zeros(imu_num)
+    receive_num_top = np.zeros(imu_num)
+    for i in range(imu_num):
+        receive_num_top[i] = receive_num_sort[-i-1]
+        send_num_top[i] = send_num_sort[-i-1]  
+                          
+    imu_freq_r = set(receive_num_top)
+    imu_freq_s = set(send_num_top)
+    
+    print("frequent user found")
+    
+    # get 50 large degree user
+    m_1 = np.zeros([user_num,user_num])
+    for i in range(start_day):
+        for j in dic[i]:
+            m_1[j[0]-1,j[1]-1] = 1
+               
+    send_degree = sum(m_1.T)
+    receive_degree = sum(m_1)
+    
+    send_degree_sort = np.argsort(send_degree)
+    receive_degree_sort = np.argsort(receive_degree)
+    send_degree_top = np.zeros(imu_num)
+    receive_degree_top = np.zeros(imu_num)
+    for i in range(imu_num):
+        receive_degree_top[i] = receive_degree_sort[-i-1]
+        send_degree_top[i] = send_degree_sort[-i-1]  
+                          
+    imu_degree_r = set(receive_degree_top)
+    imu_degree_s = set(send_degree_top)
+    
+    print("large degree user found")
+    
+    #
+    send_active = np.zeros([user_num,start_day])
+    receive_active = np.zeros([user_num,start_day])
+    for i in range(start_day):
+        for j in dic[i]:
+            send_active[j[0]-1,i] = 1
+            receive_active[j[1]-1,i] = 1
+                          
+    send_active = sum(send_active.T)
+    receive_active = sum(receive_active.T)
+    
+    send_active_sort = np.argsort(send_active)
+    receive_active_sort = np.argsort(receive_active)
+    send_active_top = np.zeros(imu_num)
+    receive_active_top = np.zeros(imu_num)
+    for i in range(imu_num):
+        receive_active_top[i] = receive_active_sort[-i-1]
+        send_active_top[i] = send_active_sort[-i-1]
+        
+    imu_active_r = set(receive_active_top)
+    imu_active_s = set(send_active_top)
+    
+    print("active user found")
+    
+    #
+    
+    #==============================================================================
+    # start simulation
+    #==============================================================================
+    
+    
+    # start simulation
+    spread_empty = np.zeros([user_num, day])
+    spread_early = np.zeros([user_num, day])
+    spread_rdegree = np.zeros([user_num, day])
+    spread_sdegree = np.zeros([user_num, day])
+    spread_ractive = np.zeros([user_num, day])
+    spread_sactive = np.zeros([user_num, day])
+    spread_rfreq = np.zeros([user_num, day])
+    spread_sfreq = np.zeros([user_num, day])
+    for i in range(user_num):
+        spread_empty[i] = np.array(infection(user_set[i],dic,start_day,imu_empty))
+        spread_early[i] = np.array(infection(user_set[i],dic,start_day,imu_early))
+        spread_rdegree[i] = np.array(infection(user_set[i],dic,start_day,imu_degree_r))
+        spread_sdegree[i] = np.array(infection(user_set[i],dic,start_day,imu_degree_s))
+        spread_ractive[i] = np.array(infection(user_set[i],dic,start_day,imu_active_r))
+        spread_sactive[i] = np.array(infection(user_set[i],dic,start_day,imu_active_s))
+        spread_rfreq[i] = np.array(infection(user_set[i],dic,start_day,imu_freq_r))
+        spread_sfreq[i] = np.array(infection(user_set[i],dic,start_day,imu_freq_s))
+    
+        print("seed:",user_set[i])
+    
+    
+    
+    early_t.append((sum(sum(spread_empty)-sum(spread_early))/user_num)/(194-start_day))
+    ra_t.append((sum(sum(spread_empty)-sum(spread_rdegree))/user_num)/(194-start_day))
+    sa_t.append((sum(sum(spread_empty)-sum(spread_sdegree))/user_num)/(194-start_day))
+    rd_t.append((sum(sum(spread_empty)-sum(spread_ractive))/user_num)/(194-start_day))
+    sd_t.append((sum(sum(spread_empty)-sum(spread_sactive))/user_num)/(194-start_day))
+    rf_t.append((sum(sum(spread_empty)-sum(spread_rfreq))/user_num)/(194-start_day))
+    sf_t.append((sum(sum(spread_empty)-sum(spread_sfreq))/user_num)/(194-start_day))
+
+#%%
+start_plot = 1
+end_plot = 19
+
+l_early,=plt.plot(time_index[start_plot:end_plot],early_t[start_plot:end_plot],label="early user")
+l_ra,=plt.plot(time_index[start_plot:end_plot],ra_t[start_plot:end_plot],label="receive activity")
+l_sa,=plt.plot(time_index[start_plot:end_plot],sa_t[start_plot:end_plot],label="send activity")
+l_rd,=plt.plot(time_index[start_plot:end_plot],rd_t[start_plot:end_plot],label="receive degree")
+l_sd,=plt.plot(time_index[start_plot:end_plot],sd_t[start_plot:end_plot],label="send degree")
+l_rf,=plt.plot(time_index[start_plot:end_plot],rf_t[start_plot:end_plot],label="receive frequency")
+l_sf,=plt.plot(time_index[start_plot:end_plot],sf_t[start_plot:end_plot],label="send frequency")
+
+plt.legend(handles=[l_early, l_ra, l_sa, l_rd, l_sd, l_rf, l_sf],loc="bottom left")
+plt.xlabel("infection start day")
+plt.ylabel("average protected user")
+#plt.yscale('log')
+plt.title("Infection reduction by immutation methods")
+plt.savefig("imu.eps")
 
 #%%
 
-#==============================================================================
-# start simulation
-#==============================================================================
-
-
-#%% start simulation
-spread_empty = np.zeros([user_num, day])
-spread_early = np.zeros([user_num, day])
-spread_rdegree = np.zeros([user_num, day])
-spread_sdegree = np.zeros([user_num, day])
-spread_ractive = np.zeros([user_num, day])
-spread_sactive = np.zeros([user_num, day])
-spread_rfreq = np.zeros([user_num, day])
-spread_sfreq = np.zeros([user_num, day])
-for i in range(user_num):
-    spread_empty[i] = np.array(infection(user_set[i],dic,start_day,imu_empty))
-    spread_early[i] = np.array(infection(user_set[i],dic,start_day,imu_early))
-    spread_rdegree[i] = np.array(infection(user_set[i],dic,start_day,imu_degree_r))
-    spread_sdegree[i] = np.array(infection(user_set[i],dic,start_day,imu_degree_s))
-    spread_ractive[i] = np.array(infection(user_set[i],dic,start_day,imu_active_r))
-    spread_sactive[i] = np.array(infection(user_set[i],dic,start_day,imu_active_s))
-    spread_rfreq[i] = np.array(infection(user_set[i],dic,start_day,imu_freq_r))
-    spread_sfreq[i] = np.array(infection(user_set[i],dic,start_day,imu_freq_s))
-
-    print("seed:",user_set[i])
-
-
+line_empty,=plt.plot(sum(spread_empty)/user_num,label="no immutation")
+line_early,=plt.plot(sum(spread_early)/user_num,label="early user")
+line_ra,=plt.plot(sum(spread_ractive)/user_num,label="receive activity")
+line_sa,=plt.plot(sum(spread_sactive)/user_num,label="send activity")
+line_rd,=plt.plot(sum(spread_rdegree)/user_num,label="receive degree")
+line_sd,=plt.plot(sum(spread_sdegree)/user_num,label="send degree")
+line_rf,=plt.plot(sum(spread_rfreq)/user_num,label="receive frequency")
+line_sf,=plt.plot(sum(spread_sfreq)/user_num,label="send frequency")
+plt.legend(handles=[line_empty, line_early, line_ra, line_sa, line_rd, line_sd, line_rf, line_sf],loc="bottom right")
+plt.xlabel("day")
+plt.ylabel("average infect")
+plt.title("Infection by different immutation from day 125")
+plt.savefig("imu125.eps")
 
 #%%
-
-plt.plot(sum(spread_empty)/user_num)
-plt.plot(sum(spread_early)/user_num)
-plt.plot(sum(spread_ractive)/user_num)
-plt.plot(sum(spread_sactive)/user_num)
-plt.plot(sum(spread_rdegree)/user_num)
-plt.plot(sum(spread_sdegree)/user_num)
-plt.plot(sum(spread_rfreq)/user_num)
-plt.plot(sum(spread_sfreq)/user_num)
-
